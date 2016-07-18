@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage("Open a folder first...");
                     } else {
                         // Start the process to create a function
-                        
+                        createAzureFunction();
                     }
                 }
 
@@ -41,6 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(disposable);
+}
+
+function createAzureFunction () {
+    
 }
 
 // this method is called when your extension is deactivated
