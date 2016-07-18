@@ -2,7 +2,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-// var funcy = require("funcy-azure");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -21,17 +20,22 @@ export function activate(context: vscode.ExtensionContext) {
         // Give the user some options
         Promise.resolve(vscode.window.showQuickPick(['Create a new function...', 'Publish this function...', 'Run this function...']))
             .then(answer => {
+                vscode.window.showInformationMessage("You chose " + answer);
 
-                if (answer == 'Crete a new function...') {
-                    vscode.window.showInformationMessage("Let's create a new Azure Function...");
+                if (answer == 'Create a new function...') {
+                    if (vscode.workspace.rootPath == undefined) {
+                        // Make sure a workspace is setup
+                        vscode.window.showErrorMessage("Open a folder first...");
+                    } else {
+                        // Start the process to create a function
+                        
+                    }
                 }
 
                 if (answer == 'Publish this function...') {
-                    vscode.window.showInformationMessage("Let's publish this function to your Azure account...");
                 }
 
                 if (answer == 'Run this function...') {
-                    vscode.window.showInformationMessage("Let's run this function locally...");
                 }
             });
     });
