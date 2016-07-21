@@ -3,10 +3,10 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as WebRequest from 'web-request';
-// import * as requestPromise from 'request-promise';
+import * as requestPromise from 'request-promise';
 
 // Import language.json for downloading the correct files in the template
-// var languagesJSON = require('./languages.json');
+//var languagesJSON = require('./languages.json');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -90,7 +90,7 @@ function createAzureFunction () {
         console.log('chosenTemplate: ' + chosenTemplate);
 
         // Download the template
-        var githubApiUrl = "https://api.github.com/repos/Azure/azure-webjobs-sdk-templates/contents/Templates";
+        var githubApiUrl = "https://api.github.com/repos/Azure/azure-webjobs-sdk-templates/contents/Templates/";
         var branchIdentifier = "?ref=dev";
 
         // JSON full of files of the template to download
@@ -104,11 +104,40 @@ function createAzureFunction () {
         },
             json: true
         };
+
+        var nameForFunction = "";
+        await Promise.resolve(vscode.window.showInputBox("Enter a name for the function"))
+        .then(answer => {
+            nameForFunction = answer;
+        });
         
-        // console.log(templateToDownloadJson);
-        // for (var file in templateToDownloadJson) {
-            // console.log('file: ' + file);
-        // }
+        console.log("nameForFunctio: " + nameForFunction);
+
+        requestPromise(options)
+        .then(templates => {
+            console.log('in request promise');
+            console.log(templates);
+
+            var filesToDownload = {};
+
+            for (var file in templates) {
+                console.log("file: " + file)
+                console.log("templates[file]: " + templates[file]);
+                console.log("templates[file].name: " + templates[file].name);
+                if (templates[file].name == "function.json" || templates[file].name == "metadata.json")  {
+                    // Download the file
+                    console.log('download json file');
+                } else if (templates[file].name.indexOf() >= 0) {
+                    // Download the file
+                    console.log('download main code file');
+                }
+            }
+
+            return 1;
+        })
+        .catch(err => {
+            console.log("There was an error in searching through the template");
+        })
     })();
 }
 

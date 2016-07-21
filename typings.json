@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "request": "registry:npm/request#2.69.0+20160428223725"
+  },
+  "globalDependencies": {
+    "request-promise": "registry:dt/request-promise#3.0.0+20160628092802"
   }
 }

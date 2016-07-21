@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/3bbe35a4cfdf09bd2a87ed660bf918131679da19/request-promise/request-promise.d.ts",
+    "raw": "registry:dt/request-promise#3.0.0+20160628092802",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/3bbe35a4cfdf09bd2a87ed660bf918131679da19/request-promise/request-promise.d.ts"
+  }
+}

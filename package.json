@@ -1,39 +1,42 @@
 {
-    "name": "vscode-azurefunctions",
-    "displayName": "Azure Functions",
-    "description": "An easier way to deal with Azure Functions",
-    "version": "0.0.1",
-    "publisher": "hhawkins",
-    "engines": {
-        "vscode": "^1.0.0"
-    },
-    "categories": [
-        "Other"
-    ],
-    "activationEvents": [
-        "onCommand:extension.azureFunctions"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "commands": [{
-            "command": "extension.azureFunctions",
-            "title": "Azure Functions"
-        }]
-    },
-    "scripts": {
-        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "dependencies": {
-        "npm": "^3.10.2",
-        "yo": "^1.8.4",
-        "generator-azurefunctions": "^0.0.5",
-        "funcy-azure": "^0.5.0"
-    },
-    "devDependencies": {
-        "typescript": "^1.8.5",
-        "funcy-azure": "^0.5.0",
-        "vscode": "^0.11.0"
-    }
+  "name": "vscode-azurefunctions",
+  "displayName": "Azure Functions",
+  "description": "An easier way to deal with Azure Functions",
+  "version": "0.0.1",
+  "publisher": "hhawkins",
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.azureFunctions"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.azureFunctions",
+        "title": "Azure Functions"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "dependencies": {
+    "funcy-azure": "^0.5.0",
+    "generator-azurefunctions": "^0.0.5",
+    "npm": "^3.10.2",
+    "request-promise": "^4.0.2",
+    "yo": "^1.8.4"
+  },
+  "devDependencies": {
+    "typescript": "^1.8.5",
+    "funcy-azure": "^0.5.0",
+    "vscode": "^0.11.0"
+  }
 }
