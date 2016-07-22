@@ -4,9 +4,16 @@
 import * as vscode from 'vscode';
 import * as WebRequest from 'web-request';
 import * as requestPromise from 'request-promise';
+import * as fs from "fs";
+import * as path from "path";
+import * as request from "request";
 
-// Import language.json for downloading the correct files in the template
-//var languagesJSON = require('./languages.json');
+
+var filesToExclude = [
+    "test.json",
+    "readme.md",
+    "metadata.json"
+];
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -94,7 +101,6 @@ function createAzureFunction () {
         var branchIdentifier = "?ref=dev";
 
         // JSON full of files of the template to download
-        // var templateToDownloadJson = await WebRequest.json<any>(githubApiUrl + chosenTemplate + branchIdentifier);
         var urlForTemplateFiles = githubApiUrl + chosenTemplate + branchIdentifier;
 
         var options = {
@@ -111,32 +117,46 @@ function createAzureFunction () {
             nameForFunction = answer;
         });
         
-        console.log("nameForFunctio: " + nameForFunction);
+        console.log("nameForFunction: " + nameForFunction);
+        var pathToSaveFunction = path.resolve(vscode.workspace.rootPath, nameForFunction);
+        console.log(pathToSaveFunction);
+
+         // Function to download the files
+          var downloadFiles = function (filesToDownload) {
+              for (let file in filesToDownload) {
+                console.log("downloading " + file);
+                console.log("from " + filesToDownload[file] + "...")
+                console.log(path.resolve(pathToSaveFunction, file))
+
+                request
+                  .get(filesToDownload[file])
+                  .on('error', err => {
+                    console.log('There was an error when downloading the file ' + file);
+                    console.log(err);
+                  })
+                  .pipe(fs.createWriteStream(path.resolve(pathToSaveFunction, file)));
+              }
+          };
 
         requestPromise(options)
         .then(templates => {
-            console.log('in request promise');
-            console.log(templates);
-
             var filesToDownload = {};
 
             for (var file in templates) {
-                console.log("file: " + file)
-                console.log("templates[file]: " + templates[file]);
-                console.log("templates[file].name: " + templates[file].name);
-                if (templates[file].name == "function.json" || templates[file].name == "metadata.json")  {
+                if (filesToExclude.indexOf(templates[file].name) < 0) {
                     // Download the file
-                    console.log('download json file');
-                } else if (templates[file].name.indexOf() >= 0) {
-                    // Download the file
-                    console.log('download main code file');
+                    filesToDownload[templates[file].name] = templates[file].download_url;
                 }
             }
+
+            console.log("filesToDownload: " + Object.keys(filesToDownload));
+            downloadFiles(filesToDownload);
 
             return 1;
         })
         .catch(err => {
             console.log("There was an error in searching through the template");
+            console.log(err);
         })
     })();
 }
