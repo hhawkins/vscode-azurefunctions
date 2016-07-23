@@ -1,6 +1,6 @@
 # vscode-azurefunctions
 
-This is the README for your extension "vscode-azurefunctions". After writing up a brief description, we recommend including the following sections.
+This is the README for vscode-azurefunctions.
 
 ## Features
 

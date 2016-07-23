@@ -28,15 +28,14 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "dependencies": {
-    "funcy-azure": "^0.5.0",
     "generator-azurefunctions": "^0.0.5",
     "npm": "^3.10.2",
     "request-promise": "^4.0.2",
-    "yo": "^1.8.4"
+    "web-request": "^1.0.3",
+    "request": "^2.73.0"
   },
   "devDependencies": {
     "typescript": "^1.8.5",
-    "funcy-azure": "^0.5.0",
     "vscode": "^0.11.0"
   }
 }

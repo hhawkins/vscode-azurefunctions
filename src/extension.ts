@@ -111,8 +111,20 @@ function createAzureFunction () {
             json: true
         };
 
+        // Ask the user the enter a name for the function
         var nameForFunction = "";
-        await Promise.resolve(vscode.window.showInputBox("Enter a name for the function"))
+        await Promise.resolve(vscode.window.showInputBox({
+            placeHolder: "Name",
+            prompt: "Enter a name for the function (The folder created will have this name)",
+            value: "MyFunction",
+            validateInput: (param) => {
+                if (param.length <= 0) {
+                    return "Please enter a name for your function!";
+                } else {
+                    return "";
+                }
+            } 
+            }))
         .then(answer => {
             nameForFunction = answer;
         });
@@ -121,21 +133,21 @@ function createAzureFunction () {
         var pathToSaveFunction = path.resolve(vscode.workspace.rootPath, nameForFunction);
         console.log(pathToSaveFunction);
 
-         // Function to download the files
-          var downloadFiles = function (filesToDownload) {
-              for (let file in filesToDownload) {
-                console.log("downloading " + file);
-                console.log("from " + filesToDownload[file] + "...")
-                console.log(path.resolve(pathToSaveFunction, file))
+        // Function to download the files
+        var downloadFiles = function (filesToDownload) {
+            for (let file in filesToDownload) {
+            console.log("downloading " + file);
+            console.log("from " + filesToDownload[file] + "...")
+            console.log(path.resolve(pathToSaveFunction, file))
 
-                request
-                  .get(filesToDownload[file])
-                  .on('error', err => {
-                    console.log('There was an error when downloading the file ' + file);
-                    console.log(err);
-                  })
-                  .pipe(fs.createWriteStream(path.resolve(pathToSaveFunction, file)));
-              }
+            request
+                .get(filesToDownload[file])
+                .on('error', err => {
+                console.log('There was an error when downloading the file ' + file);
+                console.log(err);
+                })
+                .pipe(fs.createWriteStream(path.resolve(pathToSaveFunction, file)));
+            }
           };
 
         requestPromise(options)
