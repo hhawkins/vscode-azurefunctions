@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
                 if (answer == 'Create a new function...') {
                     if (vscode.workspace.rootPath == undefined) {
                         // Make sure a workspace is setup
-                        vscode.window.showErrorMessage("Open a folder first...");
+                        vscode.window.showErrorMessage("Open a folder first!");
                     } else {
                         // Start the process to create a function
                         console.log(vscode.workspace.rootPath);
@@ -44,9 +44,11 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 if (answer == 'Publish this function...') {
+                    vscode.window.showInformationMessage("Feature coming soon!");
                 }
 
                 if (answer == 'Run this function...') {
+                    vscode.window.showInformationMessage("Feature coming soon!");
                 }
             });
     });
@@ -116,14 +118,7 @@ function createAzureFunction () {
         await Promise.resolve(vscode.window.showInputBox({
             placeHolder: "Name",
             prompt: "Enter a name for the function (The folder created will have this name)",
-            value: "MyFunction",
-            validateInput: (param) => {
-                if (param.length <= 0) {
-                    return "Please enter a name for your function!";
-                } else {
-                    return "";
-                }
-            } 
+            value: "MyFunction"
             }))
         .then(answer => {
             nameForFunction = answer;
@@ -132,6 +127,11 @@ function createAzureFunction () {
         console.log("nameForFunction: " + nameForFunction);
         var pathToSaveFunction = path.resolve(vscode.workspace.rootPath, nameForFunction);
         console.log(pathToSaveFunction);
+
+        if (!fs.statSync(pathToSaveFunction).isDirectory()) {
+            console.log("Creating the directory...");
+            await fs.mkdirSync(pathToSaveFunction);
+        }
 
         // Function to download the files
         var downloadFiles = function (filesToDownload) {
