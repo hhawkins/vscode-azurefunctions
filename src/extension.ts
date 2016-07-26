@@ -114,24 +114,47 @@ function createAzureFunction () {
         };
 
         // Ask the user the enter a name for the function
-        var nameForFunction = "";
-        await Promise.resolve(vscode.window.showInputBox({
-            placeHolder: "Name",
-            prompt: "Enter a name for the function (The folder created will have this name)",
-            value: "MyFunction"
-            }))
-        .then(answer => {
-            nameForFunction = answer;
-        });
         
-        console.log("nameForFunction: " + nameForFunction);
-        var pathToSaveFunction = path.resolve(vscode.workspace.rootPath, nameForFunction);
-        console.log(pathToSaveFunction);
+        // await Promise.resolve(vscode.window.showInputBox({
+        //     placeHolder: "Name",
+        //     prompt: "Enter a name for the function (The folder created will have this name)",
+        //     value: "MyFunction"
+        //     }))
+        // .then(answer => {
+        //     nameForFunction = answer;
+        // });
 
-        if (!fs.statSync(pathToSaveFunction).isDirectory()) {
-            console.log("Creating the directory...");
-            await fs.mkdirSync(pathToSaveFunction);
+        var askForNameOfFunction = async function (folderExists = false, folder = "") {
+            var nameForFunction = "";
+            var pathToReturn = "";
+            var defaultValue = "MyAzureFunction"
+            var prompt = "Enter a name for the function (the folder created will have this name)";
+
+            if (folderExists == true) {
+                prompt = "The folder " + folder + " exists. Use a different name.";
+                defaultValue = folder;
+            }
+
+            await Promise.resolve(vscode.window.showInputBox({
+                placeHolder: "Name for function",
+                prompt: prompt,
+                value: defaultValue
+            }))
+            .then(answer => {
+                nameForFunction = answer;
+            });
+
+            try {
+                pathToReturn = path.resolve(vscode.workspace.rootPath, nameForFunction);
+                fs.mkdirSync(pathToReturn);
+                return pathToReturn;
+            } catch (err) {
+                console.log("Folder exists");
+                return await askForNameOfFunction(true, nameForFunction);
+            }
         }
+
+        var pathToSaveFunction = await askForNameOfFunction();
 
         // Function to download the files
         var downloadFiles = function (filesToDownload) {
