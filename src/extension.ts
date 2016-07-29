@@ -114,16 +114,6 @@ function createAzureFunction () {
         };
 
         // Ask the user the enter a name for the function
-        
-        // await Promise.resolve(vscode.window.showInputBox({
-        //     placeHolder: "Name",
-        //     prompt: "Enter a name for the function (The folder created will have this name)",
-        //     value: "MyFunction"
-        //     }))
-        // .then(answer => {
-        //     nameForFunction = answer;
-        // });
-
         var askForNameOfFunction = async function (folderExists = false, folder = "") {
             var nameForFunction = "";
             var pathToReturn = "";
