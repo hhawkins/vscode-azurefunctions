@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "generator-azurefunctions": "^0.0.5",
+    "azurefunctions": "^0.0.9",
     "npm": "^3.10.2",
     "request-promise": "^4.0.2",
     "web-request": "^1.0.3",

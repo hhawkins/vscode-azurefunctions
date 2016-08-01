@@ -4,10 +4,10 @@
 import * as vscode from 'vscode';
 import * as WebRequest from 'web-request';
 import * as requestPromise from 'request-promise';
+import * as childProcess from 'child_process';
 import * as fs from "fs";
 import * as path from "path";
 import * as request from "request";
-
 
 var filesToExclude = [
     "test.json",
@@ -48,7 +48,14 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 if (answer == 'Run this function...') {
-                    vscode.window.showInformationMessage("Feature coming soon!");
+                    var aFunc = path.join(path.dirname(fs.realpathSync(__filename)), '../node_modules/azurefunctions/lib/main.js');
+                    var aFuncProc = childProcess.fork(aFunc, ['run']);
+
+                    console.log("Running function...");
+
+                    aFuncProc.on('data', (data) => {
+                        console.log('Function ran');
+                    });
                 }
             });
     });
