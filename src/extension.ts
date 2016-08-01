@@ -49,13 +49,20 @@ export function activate(context: vscode.ExtensionContext) {
 
                 if (answer == 'Run this function...') {
                     var aFunc = path.join(path.dirname(fs.realpathSync(__filename)), '../node_modules/azurefunctions/lib/main.js');
-                    var aFuncProc = childProcess.fork(aFunc, ['run']);
+                    console.log(__dirname);
+                    console.log("vscode path: " + vscode.workspace.rootPath);
+                    // var aFuncProc = childProcess.spawn(aFunc, ['run', 'MyAzureFunction', '-c', "{'name': 'Hamza'}"], {cwd: vscode.workspace.rootPath, stdio: 'inherit'});
 
+                    var aFuncProc = childProcess.spawnSync(aFunc, ['run', 'MyAzureFunction', '-c', "{'name': 'Hamza'}"], {cwd: vscode.workspace.rootPath, stdio: 'inherit'})
+                    
                     console.log("Running function...");
+                    console.log(aFuncProc);
 
-                    aFuncProc.on('data', (data) => {
-                        console.log('Function ran');
-                    });
+                    // aFuncProc.stdout.setEncoding('utf8');
+                    // aFuncProc.stdout.on('data', (data) => {
+                    //     console.log(data);
+                    //     console.log('Function ran');
+                    // });
                 }
             });
     });
