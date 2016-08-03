@@ -78,10 +78,15 @@ function runAzureFunction (functionToRun) {
         console.log("aFunc: " + aFunc);
         console.log(__dirname);
         console.log("vscode path: " + vscode.workspace.rootPath);
-        var aFuncProc = await childProcess.spawn(aFunc, ['run', functionToRun, '-c', "{'name': 'Hamza'}"], {cwd: vscode.workspace.rootPath, stdio: 'inherit'})
+        var aFuncProc = await childProcess.fork(aFunc, ['run', functionToRun, '-c', "{'name': 'Hamza'}"], {
+            cwd: vscode.workspace.rootPath
+        });
         
         console.log("Running function...");
         console.log(aFuncProc);
+        aFuncProc.on('data', function (data) {
+            console.log(data);
+        });
     })();
 }
 
