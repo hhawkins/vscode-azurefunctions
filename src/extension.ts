@@ -15,6 +15,10 @@ var filesToExclude = [
     "metadata.json"
 ];
 
+var foldersToExclude = [
+    "data"
+];
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -48,26 +52,37 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 if (answer == 'Run this function...') {
-                    var aFunc = path.join(path.dirname(fs.realpathSync(__filename)), '../node_modules/azurefunctions/lib/main.js');
-                    console.log(__dirname);
-                    console.log("vscode path: " + vscode.workspace.rootPath);
-                    // var aFuncProc = childProcess.spawn(aFunc, ['run', 'MyAzureFunction', '-c', "{'name': 'Hamza'}"], {cwd: vscode.workspace.rootPath, stdio: 'inherit'});
+                    if (vscode.workspace.rootPath == undefined) {
+                        // Make sure a workspace is setup
+                        vscode.window.showErrorMessage("Open a folder first!");
+                    } else {
+                        // Start the process to create a function
+                        console.log(vscode.workspace.rootPath);
+                        var listOfFunctions = getDirectories(vscode.workspace.rootPath);
 
-                    var aFuncProc = childProcess.spawnSync(aFunc, ['run', 'MyAzureFunction', '-c', "{'name': 'Hamza'}"], {cwd: vscode.workspace.rootPath, stdio: 'inherit'})
-                    
-                    console.log("Running function...");
-                    console.log(aFuncProc);
-
-                    // aFuncProc.stdout.setEncoding('utf8');
-                    // aFuncProc.stdout.on('data', (data) => {
-                    //     console.log(data);
-                    //     console.log('Function ran');
-                    // });
+                        Promise.resolve(vscode.window.showQuickPick(listOfFunctions))
+                            .then(answer => { 
+                                runAzureFunction(answer);
+                            })
+                    }
                 }
             });
     });
 
     context.subscriptions.push(disposable);
+}
+
+function runAzureFunction (functionToRun) {
+    (async function () {
+        var aFunc = path.join(path.dirname(fs.realpathSync(__filename)), '../node_modules/azurefunctions/lib/main.js');
+        console.log("aFunc: " + aFunc);
+        console.log(__dirname);
+        console.log("vscode path: " + vscode.workspace.rootPath);
+        var aFuncProc = await childProcess.spawn(aFunc, ['run', functionToRun, '-c', "{'name': 'Hamza'}"], {cwd: vscode.workspace.rootPath, stdio: 'inherit'})
+        
+        console.log("Running function...");
+        console.log(aFuncProc);
+    })();
 }
 
 function createAzureFunction () {
@@ -198,6 +213,14 @@ function createAzureFunction () {
             console.log(err);
         })
     })();
+}
+
+function getDirectories(srcpath) {
+    return fs.readdirSync(srcpath).filter(function(file) {
+      if (foldersToExclude.indexOf(file) < 0) {
+        return fs.statSync(path.join(srcpath, file)).isDirectory();
+      }
+  });
 }
 
 // this method is called when your extension is deactivated
