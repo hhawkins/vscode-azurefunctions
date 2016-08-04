@@ -85,8 +85,16 @@ function runAzureFunction (functionToRun) {
         
         console.log("Running function...");
         console.log(aFuncProc);
-        aFuncProc.on('data', function (data) {
-            console.log(data);
+
+        aFuncProc.stdout.pipe(process.stdout);
+        aFuncProc.stderr.pipe(process.stderr);
+
+        aFuncProc.stdout.on('data', function (data) {
+            console.log("data: " + data);
+        });
+
+        aFuncProc.stdout.on('error', function (err) {
+            console.log("error: " + err);
         });
     })();
 }
