@@ -16,7 +16,13 @@ var filesToExclude = [
 ];
 
 var foldersToExclude = [
-    "data"
+    "data",
+    "secrets"
+];
+
+var optionsForUser = [
+    "Create a new function...",
+    "Run this function..."
 ];
 
 // this method is called when your extension is activated
@@ -34,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
         // The code you place here will be executed every time your command is executed
 
         // Give the user some options
-        Promise.resolve(vscode.window.showQuickPick(['Create a new function...', 'Publish this function...', 'Run this function...']))
+        Promise.resolve(vscode.window.showQuickPick(optionsForUser))
             .then(answer => {
                 if (answer == 'Create a new function...') {
                     if (vscode.workspace.rootPath == undefined) {
