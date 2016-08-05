@@ -84,7 +84,7 @@ function runAzureFunction (functionToRun) {
         console.log("aFunc: " + aFunc);
         console.log(__dirname);
         console.log("vscode path: " + vscode.workspace.rootPath);
-        var aFuncProc = await childProcess.fork(aFunc, ['run', functionToRun, '-c', "{'name': 'Hamza'}"], {
+        var aFuncProc = await childProcess.fork(aFunc, ['run', functionToRun], {
             cwd: vscode.workspace.rootPath,
             silent: true
         });
@@ -111,6 +111,7 @@ function createAzureFunction () {
     var templatesJson = {};
 
     (async function () {
+        console.log("Creating function...")
         templatesJson = await WebRequest.json<any>(templatesUrl);
         console.log(templatesJson);
 
