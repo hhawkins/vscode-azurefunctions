@@ -25,6 +25,13 @@ var optionsForUser = [
     "Run this function..."
 ];
 
+var listOfCLICommands = [
+    "help",
+    "run",
+    "list",
+    "kill"
+];
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -84,24 +91,24 @@ function runAzureFunction (functionToRun) {
         console.log("aFunc: " + aFunc);
         console.log(__dirname);
         console.log("vscode path: " + vscode.workspace.rootPath);
-        var aFuncProc = await childProcess.fork(aFunc, ['run', functionToRun, '-c', "{'name': 'Hamza'}"], {
+        var aFuncProc = await childProcess.spawn('node', [aFunc, 'run', functionToRun, '-c', "{'name': 'Hamza'}"], {
             cwd: vscode.workspace.rootPath,
-            silent: true
+            stdio: [process.stdin, process.stdout, process.stderr, 'pipe']
         });
         
         console.log("Running function...");
         console.log(aFuncProc);
 
-        aFuncProc.stdout.pipe(process.stdout);
-        aFuncProc.stderr.pipe(process.stderr);
+        // aFuncProc.stdout.pipe(process.stdout);
+        // aFuncProc.stderr.pipe(process.stderr);
 
-        aFuncProc.stdout.on('data', function (data) {
-            console.log("data: " + data);
-        });
+        // aFuncProc.stdout.on('data', function (data) {
+        //     console.log("data: " + data);
+        // });
 
-        aFuncProc.stdout.on('error', function (err) {
-            console.log("error: " + err);
-        });
+        // aFuncProc.stdout.on('error', function (err) {
+        //     console.log("error: " + err);
+        // });
     })();
 }
 
