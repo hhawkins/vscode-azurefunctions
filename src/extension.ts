@@ -94,7 +94,7 @@ function runAzureFunction (functionToRun) {
         var aFuncProc = await childProcess.spawn('node', [aFunc, 'run', functionToRun, '-c', "{'name': 'Hamza'}"], {
 
             cwd: vscode.workspace.rootPath,
-            stdio: [process.stdin, process.stdout, process.stderr, 'pipe']
+            stdio: 'inherit'
         });
         
         console.log("Running function...");
