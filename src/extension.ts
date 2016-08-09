@@ -65,19 +65,22 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 if (answer == 'Run this function...') {
-                    if (vscode.workspace.rootPath == undefined) {
-                        // Make sure a workspace is setup
-                        vscode.window.showErrorMessage("Open a folder first!");
-                    } else {
-                        // Start the process to create a function
-                        console.log(vscode.workspace.rootPath);
-                        var listOfFunctions = getDirectories(vscode.workspace.rootPath);
+                    // For demo purposes
+                    vscode.window.showInformationMessage("Feature coming soon!");
 
-                        Promise.resolve(vscode.window.showQuickPick(listOfFunctions))
-                            .then(answer => { 
-                                runAzureFunction(answer);
-                            })
-                    }
+                    // if (vscode.workspace.rootPath == undefined) {
+                    //     // Make sure a workspace is setup
+                    //     vscode.window.showErrorMessage("Open a folder first!");
+                    // } else {
+                    //     // Start the process to create a function
+                    //     console.log(vscode.workspace.rootPath);
+                    //     var listOfFunctions = getDirectories(vscode.workspace.rootPath);
+
+                    //     Promise.resolve(vscode.window.showQuickPick(listOfFunctions))
+                    //         .then(answer => { 
+                    //             runAzureFunction(answer);
+                    //         })
+                    // }
                 }
             });
     });
