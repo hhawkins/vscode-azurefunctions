@@ -22,7 +22,8 @@ var foldersToExclude = [
 
 var optionsForUser = [
     "Create a new function...",
-    "Run this function..."
+    "Run a function...",
+    "Publish function..."
 ];
 
 var listOfCLICommands = [
@@ -58,13 +59,9 @@ export function activate(context: vscode.ExtensionContext) {
                         console.log(vscode.workspace.rootPath);
                         createAzureFunction();
                     }
-                }
-
-                if (answer == 'Publish this function...') {
+                } else if (answer == 'Publish this function...') {
                     vscode.window.showInformationMessage("Feature coming soon!");
-                }
-
-                if (answer == 'Run this function...') {
+                } else if (answer == 'Run this function...') {
                     // For demo purposes
                     vscode.window.showInformationMessage("Feature coming soon!");
 
@@ -81,6 +78,8 @@ export function activate(context: vscode.ExtensionContext) {
                     //             runAzureFunction(answer);
                     //         })
                     // }
+                } else {
+                    vscode.window.showInformationMessage("Feature coming soon!");
                 }
             });
     });
