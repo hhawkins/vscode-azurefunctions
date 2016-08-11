@@ -22,15 +22,8 @@ var foldersToExclude = [
 
 var optionsForUser = [
     "Create a new function...",
-    "Publish function...",
+    // "Publish function...",
     "Run a function..."
-];
-
-var listOfCLICommands = [
-    "help",
-    "run",
-    "list",
-    "kill"
 ];
 
 // this method is called when your extension is activated
@@ -48,7 +41,8 @@ export function activate(context: vscode.ExtensionContext) {
         // The code you place here will be executed every time your command is executed
 
         // Give the user some options
-        Promise.resolve(vscode.window.showQuickPick(optionsForUser))
+        var userChoice = vscode.window.showQuickPick(optionsForUser);
+        userChoice
             .then(answer => {
                 if (answer == 'Create a new function...') {
                     if (vscode.workspace.rootPath == undefined) {
@@ -60,12 +54,8 @@ export function activate(context: vscode.ExtensionContext) {
                         createAzureFunction();
                     }
                 } else if (answer == 'Publish function...') {
-                    // vscode.window.showInformationMessage("Feature coming soon!");
+                    vscode.window.showInformationMessage("Feature coming soon!");
 
-                    var isWin = /^win/.test(process.platform);
-                    var aFuncProc = childProcess.spawnSync(isWin ? 'cmd' : 'sh', [isWin ? '/c' : '-c', 'azurefunctions', 'help'], {
-                        cwd: vscode.workspace.rootPath
-                    });
                 } else if (answer == 'Run a function...') {
                     // For demo purposes
                     // vscode.window.showInformationMessage("Feature coming soon!");
@@ -75,61 +65,35 @@ export function activate(context: vscode.ExtensionContext) {
                         vscode.window.showErrorMessage("Open a folder first!");
                     } else {
                         // Start the process to create a function
-                        console.log(vscode.workspace.rootPath);
                         var listOfFunctions = getDirectories(vscode.workspace.rootPath);
 
                         Promise.resolve(vscode.window.showQuickPick(listOfFunctions))
-                            .then(answer => { 
-                                runAzureFunction(answer);
+                            .then(functionName => {
+                                var prompt = "Enter arguments";
+                                vscode.window.showInputBox({
+                                    placeHolder: "Arguments",
+                                    prompt: prompt,
+                                    value: ''
+                                })
+                                .then(userArgument => {
+                                     if (userArgument.length > 0) {
+                                        runCLI('run', functionName, userArgument);
+                                    } else {
+                                        runCLI('run', functionName);
+                                    }
+                                });
+                            }, reason => {
+                                console.log(reason);
                             })
                             .catch(error => {
                                 console.log("error: " + error);
                             });
                     }
-                } else {
-                    vscode.window.showInformationMessage("Feature coming soon!");
                 }
             });
     });
 
     context.subscriptions.push(disposable);
-}
-
-function runAzureFunction (functionToRun) {
-    (async function () {
-        var aFunc = path.join(path.dirname(fs.realpathSync(__filename)), './node_modules/azurefunctions/lib/main.js');
-        console.log("aFunc: " + aFunc);
-        console.log(__dirname);
-        console.log("vscode path: " + vscode.workspace.rootPath);
-        // var aFuncProc = await childProcess.fork(aFunc, ['run', functionToRun], {
-        //     cwd: vscode.workspace.rootPath
-        // });
-
-        var isWin = /^win/.test(process.platform);
-        var aFuncProc = await childProcess.spawnSync(isWin ? 'cmd' : 'sh', [isWin ? '/c' : '-c', 'azurefunctions', 'run', functionToRun], {
-            cwd: vscode.workspace.rootPath
-        });
-
-        // aFuncProc.stdout.pipe(process.stdout);
-        // aFuncProc.stderr.pipe(process.stderr);
-
-        console.log("Running function...");
-        console.log(aFuncProc);
-
-        console.log(aFuncProc.stdout.toString());
-        var outputChannel = vscode.window.createOutputChannel("Azure Functions");
-
-        outputChannel.append(aFuncProc.stdout.toString());
-        outputChannel.show(true);
-
-        // aFuncProc.stdout.on('data', function (data) {
-        //     console.log("stdout data: " + data);
-        // });
-
-        // aFuncProc.stdout.on('error', function (err) {
-        //     console.log("error: " + err);
-        // });
-    })();
 }
 
 function createAzureFunction () {
@@ -159,24 +123,24 @@ function createAzureFunction () {
 
         // Ask the user to pick a language to use
         var chosenLanguage = "";
-        await Promise.resolve(vscode.window.showQuickPick(Object.keys(sortedTemplatesByLanguage)))
+        var languageChoice = vscode.window.showQuickPick(Object.keys(sortedTemplatesByLanguage));
+        languageChoice
         .then(language => {
             chosenLanguage = language;
-        })
-        .catch(error => {
-            console.log("error: " + error);
+        }, reason => {
+            console.log(reason);
         });
 
         console.log('chosenLanguage: ' + chosenLanguage);
 
         // Ask the user to select the template based on the language
         var chosenTemplate = "";
-        await Promise.resolve(vscode.window.showQuickPick(sortedTemplatesByLanguage[chosenLanguage]))
+        var templateChoice = vscode.window.showQuickPick(sortedTemplatesByLanguage[chosenLanguage]);
+        templateChoice
         .then(answer => {
             chosenTemplate = answer;
-        })
-        .catch(error => {
-            console.log("error: " + error);
+        }, reason => {
+            console.log(reason);
         });
 
         console.log('chosenTemplate: ' + chosenTemplate);
@@ -215,6 +179,8 @@ function createAzureFunction () {
             }))
             .then(answer => {
                 nameForFunction = answer;
+            }, reason => {
+                console.log(reason);
             })
             .catch(error => {
                 console.log("error: " + error);
@@ -272,6 +238,35 @@ function createAzureFunction () {
     })();
 }
 
+function runCLI (command, functionName = null, argument = null) {
+    if (functionName == null && argument == null) {
+        var isWin = /^win/.test(process.platform);
+        var cliProc = childProcess.spawnSync(isWin ? 'cmd' : 'sh', [isWin ? '/c' : '-c', 'azurefunctions', command], {
+            cwd: vscode.workspace.rootPath
+        });
+    } else if (functionName != null && argument != null) {
+        var isWin = /^win/.test(process.platform);
+        var cliProc = childProcess.spawnSync(isWin ? 'cmd' : 'sh', [isWin ? '/c' : '-c', 'azurefunctions', command, functionName, argument], {
+            cwd: vscode.workspace.rootPath
+        });
+    } else if (functionName != null) {
+        var isWin = /^win/.test(process.platform);
+        var cliProc = childProcess.spawnSync(isWin ? 'cmd' : 'sh', [isWin ? '/c' : '-c', 'azurefunctions', command, functionName], {
+            cwd: vscode.workspace.rootPath
+        });
+    }
+
+    console.log(cliProc.stdout.toString());
+    displayToOutput(cliProc.stdout.toString());
+}
+
+function displayToOutput (textToDisplay) {
+    var outputChannel = vscode.window.createOutputChannel("Azure Functions");
+
+    outputChannel.append(textToDisplay);
+    outputChannel.show(true);
+}
+
 function getDirectories(srcpath) {
     return fs.readdirSync(srcpath).filter(function(file) {
       if (foldersToExclude.indexOf(file) < 0) {
@@ -282,4 +277,5 @@ function getDirectories(srcpath) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {
+    console.log('af deactivated');
 }
