@@ -22,8 +22,8 @@ var foldersToExclude = [
 
 var optionsForUser = [
     "Create a new function...",
-    "Run a function...",
-    "Publish function..."
+    "Publish function...",
+    "Run a function..."
 ];
 
 var listOfCLICommands = [
@@ -59,25 +59,33 @@ export function activate(context: vscode.ExtensionContext) {
                         console.log(vscode.workspace.rootPath);
                         createAzureFunction();
                     }
-                } else if (answer == 'Publish this function...') {
-                    vscode.window.showInformationMessage("Feature coming soon!");
-                } else if (answer == 'Run this function...') {
+                } else if (answer == 'Publish function...') {
+                    // vscode.window.showInformationMessage("Feature coming soon!");
+
+                    var isWin = /^win/.test(process.platform);
+                    var aFuncProc = childProcess.spawnSync(isWin ? 'cmd' : 'sh', [isWin ? '/c' : '-c', 'azurefunctions', 'help'], {
+                        cwd: vscode.workspace.rootPath
+                    });
+                } else if (answer == 'Run a function...') {
                     // For demo purposes
-                    vscode.window.showInformationMessage("Feature coming soon!");
+                    // vscode.window.showInformationMessage("Feature coming soon!");
 
-                    // if (vscode.workspace.rootPath == undefined) {
-                    //     // Make sure a workspace is setup
-                    //     vscode.window.showErrorMessage("Open a folder first!");
-                    // } else {
-                    //     // Start the process to create a function
-                    //     console.log(vscode.workspace.rootPath);
-                    //     var listOfFunctions = getDirectories(vscode.workspace.rootPath);
+                    if (vscode.workspace.rootPath == undefined) {
+                        // Make sure a workspace is setup
+                        vscode.window.showErrorMessage("Open a folder first!");
+                    } else {
+                        // Start the process to create a function
+                        console.log(vscode.workspace.rootPath);
+                        var listOfFunctions = getDirectories(vscode.workspace.rootPath);
 
-                    //     Promise.resolve(vscode.window.showQuickPick(listOfFunctions))
-                    //         .then(answer => { 
-                    //             runAzureFunction(answer);
-                    //         })
-                    // }
+                        Promise.resolve(vscode.window.showQuickPick(listOfFunctions))
+                            .then(answer => { 
+                                runAzureFunction(answer);
+                            })
+                            .catch(error => {
+                                console.log("error: " + error);
+                            });
+                    }
                 } else {
                     vscode.window.showInformationMessage("Feature coming soon!");
                 }
@@ -89,33 +97,38 @@ export function activate(context: vscode.ExtensionContext) {
 
 function runAzureFunction (functionToRun) {
     (async function () {
-        var aFunc = path.join(path.dirname(fs.realpathSync(__filename)), '../node_modules/azurefunctions/lib/main.js');
+        var aFunc = path.join(path.dirname(fs.realpathSync(__filename)), './node_modules/azurefunctions/lib/main.js');
         console.log("aFunc: " + aFunc);
         console.log(__dirname);
         console.log("vscode path: " + vscode.workspace.rootPath);
-        // var aFuncProc = await childProcess.spawnSync('node', [aFunc, 'run', functionToRun, '-c', "{'name': 'Hamza'}"], {
-        //     cwd: vscode.workspace.rootPath,
-        //     stdio: 'inherit'
+        // var aFuncProc = await childProcess.fork(aFunc, ['run', functionToRun], {
+        //     cwd: vscode.workspace.rootPath
         // });
 
         var isWin = /^win/.test(process.platform);
-        var aFuncProc = await childProcess.spawn(isWin ? 'cmd' : 'sh', ['azurefunctions', 'run', 'functionToRun'], {
+        var aFuncProc = await childProcess.spawnSync(isWin ? 'cmd' : 'sh', [isWin ? '/c' : '-c', 'azurefunctions', 'run', functionToRun], {
             cwd: vscode.workspace.rootPath
-        })
+        });
 
-        aFuncProc.stdout.pipe(process.stdout);
-        aFuncProc.stderr.pipe(process.stderr);
+        // aFuncProc.stdout.pipe(process.stdout);
+        // aFuncProc.stderr.pipe(process.stderr);
 
         console.log("Running function...");
         console.log(aFuncProc);
 
-        aFuncProc.stdout.on('data', function (data) {
-            console.log("data: " + data);
-        });
+        console.log(aFuncProc.stdout.toString());
+        var outputChannel = vscode.window.createOutputChannel("Azure Functions");
 
-        aFuncProc.stdout.on('error', function (err) {
-            console.log("error: " + err);
-        });
+        outputChannel.append(aFuncProc.stdout.toString());
+        outputChannel.show(true);
+
+        // aFuncProc.stdout.on('data', function (data) {
+        //     console.log("stdout data: " + data);
+        // });
+
+        // aFuncProc.stdout.on('error', function (err) {
+        //     console.log("error: " + err);
+        // });
     })();
 }
 
@@ -149,6 +162,9 @@ function createAzureFunction () {
         await Promise.resolve(vscode.window.showQuickPick(Object.keys(sortedTemplatesByLanguage)))
         .then(language => {
             chosenLanguage = language;
+        })
+        .catch(error => {
+            console.log("error: " + error);
         });
 
         console.log('chosenLanguage: ' + chosenLanguage);
@@ -158,6 +174,9 @@ function createAzureFunction () {
         await Promise.resolve(vscode.window.showQuickPick(sortedTemplatesByLanguage[chosenLanguage]))
         .then(answer => {
             chosenTemplate = answer;
+        })
+        .catch(error => {
+            console.log("error: " + error);
         });
 
         console.log('chosenTemplate: ' + chosenTemplate);
@@ -196,6 +215,9 @@ function createAzureFunction () {
             }))
             .then(answer => {
                 nameForFunction = answer;
+            })
+            .catch(error => {
+                console.log("error: " + error);
             });
 
             try {
